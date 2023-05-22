@@ -1,27 +1,24 @@
-class FIFOCache:
-    def __init__(self, capacity):
-        self.capacity = capacity
-        self.cache = OrderedDict()
+from collections import deque
 
-    def get(self, key):
-        if key in self.cache:
-            return self.cache[key]
-        return -1
+def fifo_page_replacement(pages, capacity):
+    memory = deque(maxlen=capacity)  # Using deque as a circular queue
+    
+    page_faults = 0
+    
+    for page in pages:
+        if page not in memory:
+            page_faults += 1
+            
+            if len(memory) == capacity:
+                memory.popleft()  # Remove the oldest page
+            
+            memory.append(page)  # Add the new page to memory
+    
+    return page_faults
 
-    def put(self, key, value):
-        if key in self.cache:
-            del self.cache[key]  # Remove existing key-value pair
-        elif len(self.cache) >= self.capacity:
-            self.cache.popitem(last=False)  # Remove the first inserted key-value pair
-        self.cache[key] = value  # Add new key-value pair
+# Example usage
+pages = [1, 2, 3, 4, 1, 2, 5, 1, 2, 3, 4, 5]
+capacity = 3
 
-# Example usage:
-cache = FIFOCache(3)
-cache.put(1, 'A')
-cache.put(2, 'B')
-cache.put(3, 'C')
-print(cache.get(1))  # Output: A
-print(cache.get(2))  # Output: B
-cache.put(4, 'D')
-print(cache.get(3))  # Output: -1 (not found)
-print(cache.get(4))  # Output: D
+faults = fifo_page_replacement(pages, capacity)
+print("Total page faults:", faults)
